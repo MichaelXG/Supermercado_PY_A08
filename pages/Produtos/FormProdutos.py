@@ -36,8 +36,8 @@ def Form_Produtos():
     if 'Quantidade' not in st.session_state:
         st.session_state.Quantidade = 0
         
-    if 'ValorUnitario' not in st.session_state:
-        st.session_state.ValorUnitario = 0
+    if 'Valor' not in st.session_state:
+        st.session_state.Valor = 0
     
     ut.Divisor('Cadastrar Produto na lista', 'cart-plus', 'rgb(20,80,90)', 'key_produto1')
 
@@ -141,9 +141,9 @@ def Form_Produtos():
         get_record_produto = get_record_produto_atual.last_registro()
     
     if action_escola == 9:  # Deletar 
-        if deletar_registro(st.session_state.Matricula): 
+        if deletar_registro(st.session_state.ID): 
             ut.fn_spinner_3('Aguarde...')   
-            ut.Sucesso('', f'Usuário "{st.session_state.Matricula} - {st.session_state.Nome}" deletado com sucesso')
+            ut.Sucesso('', f'Usuário "{st.session_state.ID} - {st.session_state.Nome}" deletado com sucesso')
             get_record_produto_geral = lista_produtos 
             get_record_produto_atual = NavegadorRegistros(get_record_produto_geral)
             get_record_produto = {}
@@ -155,12 +155,12 @@ def Form_Produtos():
         ut.Alerta('', 'Não implementado...')
    
     if get_record_produto:
-        st.session_state.Matricula = get_record_produto.get('Matrícula', 0)
+        st.session_state.ID = get_record_produto.get('ID', 0)
         st.session_state.Nome = get_record_produto.get('Nome', '')
-        st.session_state.Idade = get_record_produto.get('Idade', None)
-        st.session_state.Classe = get_record_produto.get('Classe', '')
+        st.session_state.Quantidade = get_record_produto.get('Quantidade', 0)
+        st.session_state.Valor = get_record_produto.get('Valor', 0)
 
-    # Exibir o registro na tela
+# Exibir o registro na tela
     if bool(get_record_produto) and st.session_state.Novo == False:
         
         if bool(get_record_produto):
@@ -169,45 +169,125 @@ def Form_Produtos():
             permissao_editar = True
             ut.Alerta('', 'Edição permitida somente pelo Administrador.')
             
-    with st.form(key = 'form_produto', clear_on_submit = True):
-        row_0_col1, row_0_col2, row_0_col2= st.columns([6, 2, 2]) 
-        row_4_col1, row_4_col2, row_4_col3, row_4_col4, row_4_col5= st.columns([2, 2, 1, 2, 2]) 
-        
-        # Linha 00
-        with row_0_col1:
-            st.session_state.Nome = st.text_input('Descrição', key='key_Nome')
-            if not st.session_state.Nome:
-                st.error('O campo "Descrição" é Obrigatorio.')
-        
-        with row_0_col2:   
-            st.write('') 
-        
+        with st.form(key='form_Aluno', clear_on_submit=True):
+            row_0_col1, row_0_col2, row_0_col3, row_0_col4 = st.columns([1.5, 6, 1.5, 2.5])
+            row_1_col1, row_1_col2, row_1_col3 = st.columns([4, 2, 3])
+            row_2_col1, row_2_col2 = st.columns([10, 0.01])
+            row_4_col1, row_4_col2, row_4_col3, row_4_col4, row_4_col5 = st.columns([2, 2, 1, 2, 2])
 
-        # Linha 04        
-        with row_4_col1:
-            sac.menu([sac.MenuItem(type='divider')], color='rgb(20,80,90)', open_all=False, return_index=False, index=None, key='key_divisor')
-        with row_4_col2:   
-            st.write('')
+            with row_0_col1:
+                st.session_state.ID = st.number_input("ID", step=1, min_value=0, max_value=999, value=st.session_state.ID, disabled=True)
+                if not st.session_state.ID:
+                    st.error('O campo "ID" é Obrigatorio.')
+                    
+            with row_0_col2:
+                st.session_state.Nome = st.text_input('Nome Produto', key='key_Nome', value=st.session_state.Nome, placeholder='Informe o nome completo do aluno', disabled=permissao_editar)
+                if not st.session_state.Nome:
+                    st.error('O campo "Nome Produto" é Obrigatorio.')
 
-        with row_4_col1:   
-            st.write('')
-        
-        with row_4_col2:
-           st.write('')   
-            
-        with row_4_col3: 
-            form_submit_button_produto = st.form_submit_button('Salvar')
-            
-        with row_4_col4: 
-            st.write('') 
-        
-        with row_4_col5: 
-            st.write('') 
-            
-        if form_submit_button_produto:
-            if st.session_state.Nome:
-                adicionar_produtos(st.session_state.Nome)           
-            else:
-                ut.Alerta('','Parametros para incluir um novo produto incompleto')   
-    
-    ut.Divisor('Copyright (c) 2024','','rgb(20,80,90)', 'key_produto2')
+            with row_0_col3:
+                st.session_state.Quantidade = st.number_input("Quantidade", step=1, min_value=0, max_value=100, value=st.session_state.Quantidade, disabled=permissao_editar)
+                if not st.session_state.Quantidade:
+                    st.error('O campo "Quantidade" é Obrigatorio.')
+
+            with row_0_col4:
+                st.session_state.Valor =  st.number_input('Valor R$ ', key='key_Valor', min_value=1.00, max_value=100000.00, step=1.00, format="%.2f", value= st.session_state.Valor , disabled=permissao_editar)
+                if not st.session_state.Valor:
+                    st.error('O campo "Valor" é Obrigatorio.')
+                    
+            with row_1_col3:
+                st.write('')
+
+            with row_2_col1:
+                sac.menu([sac.MenuItem(type='divider')], color='rgb(20,80,90)', open_all=False, return_index=False, index=None, key='key_divisor')
+            with row_2_col2:
+                st.write('')
+
+            with row_4_col1:
+                st.write('')
+
+            with row_4_col2:
+                st.write('')
+
+            with row_4_col3:
+                form_submit_button_Aluno = st.form_submit_button('Salvar')
+
+            with row_4_col4:
+                st.write('')
+
+            with row_4_col5:
+                st.write('')
+
+            if form_submit_button_Aluno:
+                if not(st.session_state.form_Habilitado) and st.session_state.Edit == True:
+                    if st.session_state.ID and st.session_state.Nome and st.session_state.Quantidade and st.session_state.Valor:
+                        alterar_produto(st.session_state.ID, st.session_state.Nome, st.session_state.Quantidade, st.session_state.Valor)
+                        ut.fn_spinner_3('Aguarde, alterado registro...')  
+                        get_record_produto_atual = NavegadorRegistros(get_record_produto_geral)
+                        get_record_produto = {}
+                        get_record_produto = get_record_produto_atual.refresh(st.session_state.index)
+                        
+                        reset_session_state()
+                        ut.Sucesso('', f'Produot ID "{st.session_state.ID} - {st.session_state.Nome}",  alterado com sucesso')
+                        st.rerun()
+                    else:
+                        ut.Alerta('', 'Parametros para Alterar um Aluno incompleto') 
+                else:
+                    ut.Alerta('', 'É preciso clicar no botão editar.')
+    else:
+        with st.form(key='form_Aluno_new', clear_on_submit=True):
+            row_0_col1, row_0_col2, row_0_col3, row_0_col4 = st.columns([1.5, 6, 1.5, 2.5])
+            row_1_col1, row_1_col2, row_1_col3 = st.columns([4, 2, 3])
+            row_2_col1, row_2_col2 = st.columns([10, 0.01])
+            row_4_col1, row_4_col2, row_4_col3, row_4_col4, row_4_col5 = st.columns([2, 2, 1, 2, 2])
+
+            with row_0_col1:
+                st.session_state.ID = st.number_input("Id", step=1, min_value=0, disabled= True)
+
+            with row_0_col2:
+                st.session_state.Nome = st.text_input('Nome Produto', key='key_Nome', placeholder='Informe o nome do produto')
+                if not st.session_state.Nome:
+                    st.error('O campo "Nome Produto" é Obrigatorio.')
+
+            with row_0_col3:
+                st.session_state.Quantidade = st.number_input("Quantidade", step=1, min_value=0, max_value=999)
+                if not st.session_state.Quantidade:
+                    st.error('O campo "Quantidade" é Obrigatorio.')
+
+            with row_0_col4:
+                st.session_state.Valor =  st.number_input('Valor R$ ', key='key_Valor', min_value=1.00, max_value=100000.00, step=1.00, format="%.2f")
+                if not st.session_state.Valor:
+                    st.error('O campo "Valor" é Obrigatorio.')
+
+            Notas = {}
+
+            with row_1_col3:
+                st.write('')
+
+            with row_2_col1:
+                sac.menu([sac.MenuItem(type='divider')], color='rgb(20,80,90)', open_all=False, return_index=False, index=None, key='key_divisor')
+            with row_2_col2:
+                st.write('')
+
+            with row_4_col1:
+                st.write('')
+
+            with row_4_col2:
+                st.write('')
+
+            with row_4_col3:
+                form_submit_button_Aluno = st.form_submit_button('Salvar')
+
+            with row_4_col4:
+                st.write('')
+
+            with row_4_col5:
+                st.write('')
+                    
+            if form_submit_button_Aluno:
+                if st.session_state.Nome and st.session_state.Quantidade and st.session_state.Valor:
+                    adicionar_produtos(st.session_state.Nome, st.session_state.Quantidade, st.session_state.Valor)
+                else:
+                    ut.Alerta('', 'Parametros para incluir um novo produdo a lista incompleto')
+                    
+    ut.Divisor('Copyright (c) 2024', '', 'rgb(20,80,90)', 'key_produtos2')

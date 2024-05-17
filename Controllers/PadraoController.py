@@ -16,16 +16,16 @@ apelidos = ['Suporte', 'Visitante', 'Maria']
 
 # Lista para armazenar as produtos
 lista_produtos = [    
-    {'ID': 1, 'Nome': 'Café',     'Quantidade': 25, 'Valor': 15.34, 'Total': 383.5},
-    {'ID': 2, 'Nome': 'Leite',    'Quantidade': 26, 'Valor': 28.1,  'Total': 730.6}, 
-    {'ID': 3, 'Nome': 'Manteiga', 'Quantidade': 72, 'Valor': 11.42, 'Total': 822.24},
-    {'ID': 4, 'Nome': 'Sal',      'Quantidade': 94, 'Valor': 24.32, 'Total': 2286.08},     
-    {'ID': 5, 'Nome': 'Macarrão', 'Quantidade': 79, 'Valor': 10.13, 'Total': 800.27}, 
-    {'ID': 6, 'Nome': 'Feijão',   'Quantidade': 68, 'Valor': 31.51, 'Total': 2142.68},  
-    {'ID': 7, 'Nome': 'Farinha',  'Quantidade': 26, 'Valor': 36.66, 'Total': 953.16},  
-    {'ID': 8, 'Nome': 'Macarrão', 'Quantidade': 47, 'Valor': 28.73, 'Total': 1350.31},
-    {'ID': 9, 'Nome': 'Açúcar',   'Quantidade': 33, 'Valor': 27.4,  'Total': 904.2},     
-    {'ID': 10,'Nome': 'Azeite',   'Quantidade': 68, 'Valor': 28.6,  'Total': 1944.8}, 
+    {'ID': 1, 'Nome': 'Café',     'Quantidade': 1,  'Valor': 19.98, 'Total': 19.98},
+    {'ID': 2, 'Nome': 'Leite',    'Quantidade': 24, 'Valor': 5.98,  'Total': 143.52}, 
+    {'ID': 3, 'Nome': 'Manteiga', 'Quantidade': 2,  'Valor': 11.42, 'Total': 22.84},
+    {'ID': 4, 'Nome': 'Sal',      'Quantidade': 1,  'Valor': 4.59,  'Total': 4.59},     
+    {'ID': 5, 'Nome': 'Macarrão', 'Quantidade': 2,  'Valor': 3.25,  'Total': 6.50}, 
+    {'ID': 6, 'Nome': 'Feijão',   'Quantidade': 3,  'Valor': 8.99,  'Total': 26.97},  
+    {'ID': 7, 'Nome': 'Farinha',  'Quantidade': 1,  'Valor': 6.45,  'Total': 6.45},  
+    {'ID': 8, 'Nome': 'Tapioca',  'Quantidade': 2,  'Valor': 5.73,  'Total': 11.46},
+    {'ID': 9, 'Nome': 'Açúcar',   'Quantidade': 1,  'Valor': 13.4,  'Total': 13.4},     
+    {'ID': 10,'Nome': 'Azeite',   'Quantidade': 2,  'Valor': 39.89, 'Total': 79.78}, 
 ]
 # Função para gerar nova ID
 def gerar_id_produto():
@@ -48,39 +48,50 @@ def style_df(df):
     # Cálculo da soma do valor total de todos os produtos
     valor_total_geral = df['Total'].sum()
     # Criar uma linha de rodapé com a soma do valor total
-    rodape = pd.DataFrame({'ID': [''], 'Nome': ['Total geral'], 'Quantidade': [''], 'Valor': [''], 'Total': [valor_total_geral]})
+    rodape = pd.DataFrame({'ID': [''], 'Nome': ['Total Geral:'], 'Quantidade': [''], 'Valor': [''], 'Total': [format_money(valor_total_geral)]})
     # Concatenar a linha de rodapé ao DataFrame original
     df_com_rodape = pd.concat([df, rodape], ignore_index=True)
     
     # Aplicar os estilos
     styled_df = df_com_rodape.style.apply(zebra_style, axis=1)
+    
+    # Alinhar colunas à direita
     styled_df = styled_df.set_properties(**{'text-align': 'right'}, subset=['Quantidade', 'Valor', 'Total'])
-    # styled_df = styled_df.format({
-    #     'Quantidade': '{:.2f}',
-    #     'Valor': format_money,
-    #     'Total': format_money
-    # })
+    
+    # Aplicar formatação monetária às colunas de valor, exceto na última linha (rodapé)
+    styled_df = styled_df.format({
+        'Valor': format_money,
+        'Total': format_money
+    }, subset=pd.IndexSlice[:-1, ['Valor', 'Total']])
+    
+    # Formatar a coluna 'Quantidade' sem aplicar ao rodapé
+    styled_df = styled_df.format({
+        'Quantidade': '{:.2f}'
+    }, subset=pd.IndexSlice[:-1, ['Quantidade']])
+    
+    # Estilizar o rodapé em negrito
+    styled_df = styled_df.set_table_styles([{
+        'selector': 'tr:last-child',
+        'props': [('font-weight', 'bold')]
+    }])
+
     return styled_df
 
-    # # Aplicar os estilos
-    # styled_df = df.style.apply(zebra_style, axis=1)
-    # styled_df = styled_df.set_properties(**{'text-align': 'right'}, subset=['Quantidade', 'Valor', 'Total'])
-    # styled_df = styled_df.format({
-    #     'Quantidade': '{:.2f}',
-    #     'Valor': format_money,
-    #     'Total': format_money
-    # })
-    # return styled_df
-
-#  Função para adicionar uma novo veículo
+#  Função para adicionar um novo produto a lista
 def adicionar_produtos(Nome, Quantidade, Valor_Unitario):
+    # Verificar se o produto já existe na lista 
+    for produto in lista_produtos:
+        if produto['Nome'].lower() == Nome.lower():
+            ut.Erro('', f'Produto "{Nome}" já existe na lista!')
+            return
+
     produto = {
         "ID": gerar_id_produto(),
         "Nome": Nome,
         "Quantidade": round(Quantidade, 2),
         "Valor": round(Valor_Unitario, 2),
         "Total": round(Valor_Unitario * Quantidade, 2)
-    } 
+    }
     lista_produtos.append(produto)
     ut.Sucesso('', f'Produto "{Nome}" adicionado com sucesso!')
 
@@ -116,9 +127,23 @@ def deletar_registro(ID_produto: int) -> bool:
         ut.Erro("", "o ID do produto deve ser um número inteiro.")
         return False
     
-    if ID_produto in lista_produtos:
-        del lista_produtos[ID_produto]
-        return True
+    for i, produto in enumerate(lista_produtos):
+        if produto['ID'] == ID_produto:
+            del lista_produtos[i]
+            ut.Sucesso('', f'Produto com ID {ID_produto} foi removido com sucesso.')
+            return True
     
     if ID_produto not in lista_produtos:
         return True
+
+def alterar_produto(ID, novo_nome, nova_quantidade, novo_valor):
+    for produto in lista_produtos:
+        if produto['ID'] == ID:
+            produto['Nome'] = novo_nome
+            produto['Quantidade'] = nova_quantidade
+            produto['Valor'] = novo_valor
+            produto['Total'] = nova_quantidade * novo_valor
+            ut.Sucesso('', f'Produto "{novo_nome}" alterado com sucesso!')
+            return True
+    ut.Erro('', f'Produto com ID {ID} não encontrado.')
+    return False
