@@ -151,8 +151,13 @@ def Form_Produtos():
             reset_session_state()
             
     if action_escola == 10:  # Informação
-        get_record_produto = get_record_produto_atual.informacoes(st.session_state.index)
-        ut.Alerta('', 'Não implementado...')
+        reset_session_state()
+        ut.fn_spinner_3('Aguarde, carregando o registro...')   
+        get_record_produto_geral = lista_produtos 
+        get_record_produto_atual = NavegadorRegistros(get_record_produto_geral)
+        get_record_produto = {}
+        get_record_produto = get_record_produto_atual.refresh(st.session_state.index)
+        ut.Alerta('', 'Informação ão implementada...')
    
     if get_record_produto:
         st.session_state.ID = get_record_produto.get('ID', 0)
