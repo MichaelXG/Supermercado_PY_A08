@@ -41,8 +41,13 @@ def zebra_style(row):
 
 # Função para formatar money
 def format_money(valor):
-    if isinstance(valor, (int, float)):
+    if isinstance(valor, (float)):
         return 'R$ {:,.2f}'.format(valor).replace(',', 'v').replace('.', ',').replace('v', '.')
+    return valor
+# Função para formatar inteiros
+def format_int(valor):
+    if isinstance(valor, (int)):
+        return '{:,.2f}'.format(valor).replace(',', 'v').replace('.', ',').replace('v', '.')
     return valor
 
 # Função para estilizar o DataFrame
@@ -62,15 +67,11 @@ def style_df(df):
     
     # Aplicar formatação monetária às colunas de valor, exceto na última linha (rodapé)
     styled_df = styled_df.format({
+        'Quantidade': format_int,
         'Valor': format_money,
         'Total': format_money
     })
-    
-    # Formatar a coluna 'Quantidade' sem aplicar ao rodapé
-    styled_df = styled_df.format({
-        'Quantidade': '{:.2f}'
-    }, subset=pd.IndexSlice[:-1, ['Quantidade']])
-    
+        
     # Estilizar o rodapé em negrito e aplicar a formatação monetária no rodapé
     styled_df = styled_df.set_table_styles([{
         'selector': 'tr:last-child',
