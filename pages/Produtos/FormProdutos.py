@@ -39,7 +39,7 @@ def Form_Produtos():
     if 'Valor' not in st.session_state:
         st.session_state.Valor = 0
     
-    ut.Divisor('Cadastrar Produto na lista', 'cart-plus', 'rgb(20,80,90)', 'key_produto1')
+    ut.Divisor('Cadastrar / Alterar, Produtos na lista', 'cart-plus', 'rgb(20,80,90)', 'key_produto1')
 
     df_filtrado_qtd = listar_produtos(None, None) 
     p_max_value = len(df_filtrado_qtd) -1
@@ -169,7 +169,7 @@ def Form_Produtos():
             permissao_editar = True
             ut.Alerta('', 'Edição permitida somente pelo Administrador.')
             
-        with st.form(key='form_Aluno', clear_on_submit=True):
+        with st.form(key='form_Produto', clear_on_submit=True):
             row_0_col1, row_0_col2, row_0_col3, row_0_col4 = st.columns([1.5, 6, 1.5, 2.5])
             row_1_col1, row_1_col2, row_1_col3 = st.columns([4, 2, 3])
             row_2_col1, row_2_col2 = st.columns([10, 0.01])
@@ -231,11 +231,11 @@ def Form_Produtos():
                         ut.Sucesso('', f'Produot ID "{st.session_state.ID} - {st.session_state.Nome}",  alterado com sucesso')
                         st.rerun()
                     else:
-                        ut.Alerta('', 'Parametros para Alterar um Aluno incompleto') 
+                        ut.Alerta('', 'Parametros para Alterar um produto da lista incompleto') 
                 else:
                     ut.Alerta('', 'É preciso clicar no botão editar.')
     else:
-        with st.form(key='form_Aluno_new', clear_on_submit=True):
+        with st.form(key='form_Produto_new', clear_on_submit=True):
             row_0_col1, row_0_col2, row_0_col3, row_0_col4 = st.columns([1.5, 6, 1.5, 2.5])
             row_1_col1, row_1_col2, row_1_col3 = st.columns([4, 2, 3])
             row_2_col1, row_2_col2 = st.columns([10, 0.01])

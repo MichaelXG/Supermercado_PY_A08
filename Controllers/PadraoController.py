@@ -39,16 +39,18 @@ def gerar_id_produto():
 def zebra_style(row):
     return ['background-color: #f2f2f2' if row.name % 2 == 0 else '' for _ in row]
 
-# Função para formatar no padrão brasileiro
+# Função para formatar money
 def format_money(valor):
-    return 'R$ {:,.2f}'.format(valor).replace(',', 'v').replace('.', ',').replace('v', '.')
+    if isinstance(valor, (int, float)):
+        return 'R$ {:,.2f}'.format(valor).replace(',', 'v').replace('.', ',').replace('v', '.')
+    return valor
 
 # Função para estilizar o DataFrame
 def style_df(df):
     # Cálculo da soma do valor total de todos os produtos
     valor_total_geral = df['Total'].sum()
     # Criar uma linha de rodapé com a soma do valor total
-    rodape = pd.DataFrame({'ID': [''], 'Nome': ['Total Geral:'], 'Quantidade': [''], 'Valor': [''], 'Total': [format_money(valor_total_geral)]})
+    rodape = pd.DataFrame({'ID': [''], 'Nome': ['Total Geral:'], 'Quantidade': [''], 'Valor': [''], 'Total': [valor_total_geral]})
     # Concatenar a linha de rodapé ao DataFrame original
     df_com_rodape = pd.concat([df, rodape], ignore_index=True)
     
@@ -62,14 +64,14 @@ def style_df(df):
     styled_df = styled_df.format({
         'Valor': format_money,
         'Total': format_money
-    }, subset=pd.IndexSlice[:-1, ['Valor', 'Total']])
+    })
     
     # Formatar a coluna 'Quantidade' sem aplicar ao rodapé
     styled_df = styled_df.format({
         'Quantidade': '{:.2f}'
     }, subset=pd.IndexSlice[:-1, ['Quantidade']])
     
-    # Estilizar o rodapé em negrito
+    # Estilizar o rodapé em negrito e aplicar a formatação monetária no rodapé
     styled_df = styled_df.set_table_styles([{
         'selector': 'tr:last-child',
         'props': [('font-weight', 'bold')]
@@ -77,11 +79,11 @@ def style_df(df):
 
     return styled_df
 
-#  Função para adicionar um novo produto a lista
+# Função para adicionar um novo produto a lista
 def adicionar_produtos(Nome, Quantidade, Valor_Unitario):
     # Verificar se o produto já existe na lista 
     for produto in lista_produtos:
-        if produto['Nome'].lower() == Nome.lower():
+        if (produto['Nome'].lower() == Nome.lower()):
             ut.Erro('', f'Produto "{Nome}" já existe na lista!')
             return
 
@@ -110,9 +112,9 @@ def listar_produtos(pID=None, pNome=None):
         df_filtrado = df_filtrado[df_filtrado['ID'] == pID]
     
     if pNome:
-        # Alunos que começam com a string de busca
+        # Produtos que começam com a string de busca
         inicio = df_filtrado[df_filtrado['Nome'].str.lower().str.startswith(pNome.lower())]
-        # Alunos que contêm a string de busca
+        # Produtos que contêm a string de busca
         contem = df_filtrado[df_filtrado['Nome'].str.lower().str.contains(pNome.lower())]
         # Remover duplicatas mantendo a ordem
         df_filtrado = pd.concat([inicio, contem]).drop_duplicates().reset_index(drop=True)
@@ -124,7 +126,7 @@ def deletar_registro(ID_produto: int) -> bool:
         st.write(ID_produto)
         ID_produto = int(ID_produto)
     except ValueError:
-        ut.Erro("", "o ID do produto deve ser um número inteiro.")
+        ut.Erro("", "O ID do produto deve ser um número inteiro.")
         return False
     
     for i, produto in enumerate(lista_produtos):
